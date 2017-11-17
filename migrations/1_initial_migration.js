@@ -1,5 +1,6 @@
-var Migrations = artifacts.require("./Migrations.sol");
+const Migrations = artifacts.require("./Migrations.sol");
 
-module.exports = function(deployer,network) {
-    deployer.deploy(Migrations);
+module.exports = function (deployer, network) {
+    deployer.deploy(Migrations)
+        .then(() => console.log("[MIGRATION] [1] initial commit: #done"));
 };
