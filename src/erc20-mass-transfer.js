@@ -7,14 +7,25 @@ const ENCODING = 'utf-8';
 
 module.exports = () => {
 
-    var argv = optimist.argv;
-    const csvFilePath = argv.data;
-    const txBatchSize = argv.batch_size;
-    const source = "0x" + argv.source;
-    const abiPath = argv.abi;
-    const erc20TokenAddress = "0x" + argv.token_address;
+    //TODO figure out how to fix problem with: JS transform source address in BigNumber if it starts with "0x" from console
 
-    const abi = fs.readFileSync(abiPath).toString(ENCODING);
+    const argv = optimist.argv;
+    const csvFilePath = argv.data;
+    const txBatchSize = argv.batch;
+    const inputSource = argv.source == null ? web3.currentProvider.getAddress() : argv.source;
+
+    if (csvFilePath == null
+        || txBatchSize == null
+        || inputSource == null
+        || argv.token == null) {
+        throw "Some of required parameters don't be set."
+    }
+    const normilaze = (str) => str.toString().startsWith("0x") ? str.toString() : "0x" + str.toString();
+
+    const erc20TokenAddress = normilaze(argv.token);
+    const source = normilaze(inputSource);
+
+    const abi = fs.readFileSync('./resources/ERC20Interface.json').toString(ENCODING);
     const jsonAbi = JSON.parse(abi);
     const erc20Instance = web3.eth.contract(jsonAbi.abi).at(erc20TokenAddress);
 
@@ -25,7 +36,9 @@ module.exports = () => {
         throw "Data file is empty or incorrect CSVParser format. Aborted";
     }
 
-    console.log(data);
+    if (argv.network == "develop" || argv.network == "test") {
+        console.log(data);
+    }
 
     let transfers = [];
     for (let row of data) {
@@ -116,8 +129,6 @@ module.exports = () => {
                 console.log(source);
                 console.log(account.address);
 
-
-
                 if (parseInt(currentBalance.valueOf()) < parseInt(account.amount)) {
 
                     console.log(account.amount);
@@ -143,7 +154,6 @@ module.exports = () => {
                         logObject.status = "INFO] Transaction send:" + logObject.hash;
                         logs.push(logObject);
                         return resolve(hash);
-
                     }
                 );
             });
