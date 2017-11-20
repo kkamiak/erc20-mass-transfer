@@ -13,6 +13,11 @@ module.exports = {
             network_id: 1,
             provider: new HDWalletProvider(wallet, 'QWEpoi123', 'https://rinkeby.infura.io/'),
             gas: 4700000
+        },
+        rinkeby: {
+            network_id: 4,
+            provider: new HDWalletProvider(wallet, 'QWEpoi123', 'https://rinkeby.infura.io/'),
+            gas: 4700000
         }
     },
 
